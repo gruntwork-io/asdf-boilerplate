@@ -22,10 +22,12 @@
 Plugin:
 
 ```shell
-asdf plugin add boilerplate
-# or
 asdf plugin add boilerplate https://github.com/gruntwork-io/asdf-boilerplate.git
 ```
+
+<!-- TODO: Get this plugin to be the default for boilerplate -->
+<!-- asdf plugin add boilerplate -->
+
 
 boilerplate:
 
