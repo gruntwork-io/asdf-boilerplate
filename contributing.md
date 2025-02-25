@@ -5,7 +5,7 @@ Testing Locally:
 ```shell
 asdf plugin test <plugin-name> <plugin-url> [--asdf-tool-version <version>] [--asdf-plugin-gitref <git-ref>] [test-command*]
 
-# TODO: adapt this
+# Example
 asdf plugin test boilerplate https://github.com/gruntwork-io/asdf-boilerplate.git "boilerplate --version"
 ```
 

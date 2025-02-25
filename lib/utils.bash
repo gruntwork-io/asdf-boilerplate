@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for boilerplate.
 GH_REPO="https://github.com/gruntwork-io/boilerplate"
 TOOL_NAME="boilerplate"
 TOOL_TEST="boilerplate --version"
@@ -14,7 +13,6 @@ fail() {
 
 curl_opts=(-fsSL)
 
-# NOTE: You might want to remove this if boilerplate is not hosted on GitHub releases.
 if [ -n "${GITHUB_API_TOKEN:-}" ]; then
 	curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
 fi
@@ -27,13 +25,29 @@ sort_versions() {
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
 		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
+		sed 's/^v//'
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if boilerplate has other means of determining installable versions.
 	list_github_tags
+}
+
+get_os() {
+	os="$(uname -s)"
+	case "$os" in
+	Linux) echo "linux" ;;
+	Darwin) echo "darwin" ;;
+	*) fail "Unsupported OS: $os" ;;
+	esac
+}
+
+get_arch() {
+	arch="$(uname -m)"
+	case "$arch" in
+	x86_64) echo "amd64" ;;
+	arm64) echo "arm64" ;;
+	*) fail "Unsupported architecture: $arch" ;;
+	esac
 }
 
 download_release() {
@@ -41,8 +55,7 @@ download_release() {
 	version="$1"
 	filename="$2"
 
-	# TODO: Adapt the release URL convention for boilerplate
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	url="$GH_REPO/releases/download/v${version}/${TOOL_NAME}_$(get_os)_$(get_arch)"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -61,7 +74,8 @@ install_version() {
 		mkdir -p "$install_path"
 		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
 
-		# TODO: Assert boilerplate executable exists.
+		"$install_path/boilerplate" --version || fail "boilerplate --version failed."
+
 		local tool_cmd
 		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
 		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
